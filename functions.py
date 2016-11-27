@@ -193,6 +193,31 @@ def fTransform(data):
 
     return fpulse
 
+def compute(list1, list2):
+    k=len(list2) - len(list1)
+    #for i in range(0, len(list2)):
+    i=0
+    while(i<len(list2)):
+        if (i==len(list1)):
+            list2 = list2[0:i-1]
+            print 'here1'
+            return list2
+        elif abs(list1[i] - list2[i]) >= 2.0:
+            del list2[i]
+            k=k-1
+            if k==0:
+                print 'here2 compute1'
+                return list2
+        else:
+            i=i+1
+
+
+def process(listmain):
+    for i in range(1, len(listmain)):
+        if len(listmain[i - 1]) < len(listmain[i]):
+            listmain[i] = compute(listmain[i - 1], listmain[i])
+    return listmain
+
 
 
 
