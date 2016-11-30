@@ -58,23 +58,33 @@ def plotPeaksWithBPM(dataset, T, nsamples, mov_avg, xbeat, ybeat, bpm):
 
 def calculateBPM(peaklist, fs):
     RR_list = []
+    RR_list2 = []
     cnt = 0
     while (cnt < (len(peaklist) - 1)):
         RR_interval = (peaklist[cnt + 1] - peaklist[cnt])  # Calculate distance between beats in # of samples
-        ms_dist = ((RR_interval / fs) * 1000.0)  # Convert sample distances to ms distances
+        RR_list2.append(RR_interval)
+        ms_dist = ((RR_interval / int(fs)) * 1000.0)  # Convert sample distances to ms distances
         RR_list.append(ms_dist)  # Append to list
         cnt += 1
+    i=1
+    j=2
+    for x in RR_list2:
+        val = float(fs/x)
+        print("HRV for peaks %d and %d = %f, sample distance = %f" %(i,j,val,x))
+        i=i+1
+        j=j+1
+
     bpm = 60000 / np.mean(RR_list)  # 60000 ms (1 minute) / average R-R interval of signal
     return bpm
 
-def getPeaksUsingPeakUtils(dataset,T,nsamples,fpulse,fs):
+def getPeaksUsingPeakUtils(dataset,T,nsamples,fpulse,fs,thres):
     t = np.linspace(0, T, nsamples, endpoint=False)
     winsize = round(fs/fpulse)
     print('Detect peaks with minimum height and distance filters.')
     mx = max(dataset)
     mn = min(dataset)
     rng = mx - mn
-    rval = mx/2
+    rval = mx*thres
     lval = rval-mn
     thr = lval/rng
     print ('threshold value for peaks', thr) #0.61877954452134953
@@ -97,10 +107,10 @@ def plotPeaks(dataset,T,nsamples,xbeat,ybeat):
     plt.scatter(xbeat, ybeat, color='red')  # Plot detected peaks
     plt.show()
 
-def plotFinalBPM(dataset,T,nsamples,samplingFreq,fpulse):
+def plotFinalBPM(dataset,T,nsamples,samplingFreq,fpulse,thres):
     #(peaklist, ybeat, xbeat, mov_avg) = getPeaksInGraph(dataset, T, nsamples, samplingFreq)
     #plotPeaks(dataset, T, nsamples, xbeat, ybeat)
-    (peaklist,xbeat,ybeat,mov_avg) = getPeaksUsingPeakUtils(dataset,T,nsamples, fpulse, samplingFreq)
+    (peaklist,xbeat,ybeat,mov_avg) = getPeaksUsingPeakUtils(dataset,T,nsamples, fpulse, samplingFreq,thres)
     plotPeaks(dataset, T, nsamples, xbeat, ybeat)
     bpm = calculateBPM(peaklist, samplingFreq)
     plotPeaksWithBPM(dataset, T, nsamples, mov_avg, xbeat, ybeat, bpm)

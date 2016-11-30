@@ -6,11 +6,37 @@ import scipy as sy
 import pdb
 
 
-def trackFeatures(cap, old_frame, corners_t, xx, yy, color, old_gray):
+def compute(list1, list2):
+    k=len(list2) - len(list1)
+    #for i in range(0, len(list2)):
+    i=0
+    while(i<len(list2)):
+        if (i==len(list1)):
+            list2 = list2[0:i-1]
+            print 'here1'
+            return list2
+        elif abs(list1[i] - list2[i]) >= 2.0:
+            del list2[i]
+            k=k-1
+            if k==0:
+                print 'here2 compute1'
+                return list2
+        else:
+            i=i+1
+
+
+def process(listmain):
+    for i in range(1, len(listmain)):
+        if len(listmain[i - 1]) < len(listmain[i]):
+            listmain[i] = compute(listmain[i - 1], listmain[i])
+    return listmain
+
+def trackFeatures(cap, old_frame, corners_t, xx, yy, color, old_gray, frCnt):
     print "Feature Tracking (Lucas Kanade) ..."
     lk_params = dict(winSize=(15, 15),
                      maxLevel=2,
-                     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03))
+                     criteria=(cv2.TERM_CRITERIA_EPS | cv2.TERM_CRITERIA_COUNT, 10, 0.03),
+                     flags=0)
     mask = np.zeros_like(old_frame)
     cnt = 0
     listx = []
@@ -23,7 +49,7 @@ def trackFeatures(cap, old_frame, corners_t, xx, yy, color, old_gray):
             break
 
         cnt = cnt + 1
-        if cnt == 301:
+        if cnt == frCnt:
             break
         listx.append(cnt)
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -172,8 +198,10 @@ def fft_plo(data,fs):
 
 def fft_plot2(data):
     spectrum = fft.fft(data)
-    freq = fft.fftfreq(n=len(spectrum))
+    fs = 1/128.0
+    freq = fft.fftfreq(n=len(spectrum),d=float(fs))
     plt.plot(freq, abs(spectrum))
+    #plt.plot(freq)
     print ('freq', freq)
     plt.show()
     #pdb.set_trace()
@@ -192,31 +220,6 @@ def fTransform(data):
         fpulse.append(max(peaks))'''
 
     return fpulse
-
-def compute(list1, list2):
-    k=len(list2) - len(list1)
-    #for i in range(0, len(list2)):
-    i=0
-    while(i<len(list2)):
-        if (i==len(list1)):
-            list2 = list2[0:i-1]
-            print 'here1'
-            return list2
-        elif abs(list1[i] - list2[i]) >= 2.0:
-            del list2[i]
-            k=k-1
-            if k==0:
-                print 'here2 compute1'
-                return list2
-        else:
-            i=i+1
-
-
-def process(listmain):
-    for i in range(1, len(listmain)):
-        if len(listmain[i - 1]) < len(listmain[i]):
-            listmain[i] = compute(listmain[i - 1], listmain[i])
-    return listmain
 
 
 

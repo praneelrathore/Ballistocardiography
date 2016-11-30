@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.decomposition import PCA
 from scipy import signal
+import numpy.fft as fft
 
 
 
@@ -22,7 +23,6 @@ def formData(listmain, k=100):
     np_array = np.asarray(listmain)
     np_array = normalizeData(np_array)
     return np_array
-
 
 def pcaToSignal(X, nsamples, T):
     print "PCA..."
@@ -68,3 +68,10 @@ def getComponentWithMaxFreqComponent(s, samplingFreq):
         templist.append(k)
     print
     return (freqComp_s,templist)
+
+def getfpulse(data, samplingFreq):
+    f, Pxx_den = signal.periodogram(data, samplingFreq)
+    i = np.argmax(Pxx_den)
+    print ('fpulse = ', f[i])
+
+    return f[i]

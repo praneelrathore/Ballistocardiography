@@ -6,13 +6,29 @@ import pca
 import peakDetection as pd
 
 
-loc = "s01_trial01.avi"
+loc = "video005.mp4"
+maxCorners = 50
+upSampleFactor = 16.67
+frCnt = 195
+#BPM = 70, PPG using MI Band = 71, 73 BPM 12 seconds video
+
+
+#Happy Fun Excitement Cheerful Joy
+#Sad Hate Depress Sentimental Meloncholy
+'''
+loc = "s01_trial05.avi"
 maxCorners = 100
 upSampleFactor = 5
+frCnt = 501
+#BPM = 72, using PPG data in file5.py, BPM = 71.4
+'''
+
 lowcut = 0.75
 highcut = 5.0
 (cap,fps) = func.videoCap(loc)
 samplingFreq = fps * upSampleFactor
+print ('fs', samplingFreq)
+thres = 0.25
 
 # USES HAAR CASCADE TO DETECT FACE IN THE VIDEO
 (old_frame, face, color, old_gray) = func.faceClassifier(cap)
@@ -27,7 +43,7 @@ samplingFreq = fps * upSampleFactor
 func.markFeatures(old_frame,focused_face,corners,xx,yy)
 
 # LUCAS KANADE FEATURE TRACKING
-(listx, listmain) = func.trackFeatures(cap,old_frame,corners_t,xx,yy, color, old_gray)
+(listx, listmain) = func.trackFeatures(cap,old_frame,corners_t,xx,yy, color, old_gray, frCnt)
 
 # FORMS DATA FROM THE TRACKED FEATURE POINTS
 dataPoints = pca.formData(listmain)
@@ -54,7 +70,7 @@ s = pca.pcaToSignal(idata_new, nsamples, T)  #s.shape = (5,nsamples)
 i = pca.selectBestPCAComponent(freqComp_s)
 fpulse = freqs[i]
 print("fpulse = %f" %fpulse)
-bpm = pd.plotFinalBPM(s[i],T,nsamples,samplingFreq,fpulse)
+bpm = pd.plotFinalBPM(s[i],T,nsamples,samplingFreq,fpulse,thres)
 
 print ("Final BPM = %f, fpulse = %f" %(bpm,fpulse))
 
