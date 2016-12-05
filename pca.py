@@ -2,6 +2,8 @@ import numpy as np
 from sklearn.decomposition import PCA
 from scipy import signal
 import numpy.fft as fft
+from matplotlib import pyplot as plt
+import math
 
 
 
@@ -12,8 +14,12 @@ def normalizeData(data):
 
 
 def formData(listmain, k=100):
-    for list in listmain:
-        k = min(len(list), k)
+    prevlist = []
+    for i in range(0,len(listmain)):
+        if (len(listmain[i]) == 0):
+            listmain[i] = prevlist
+        k = min(len(listmain[i]), k)
+        prevlist = listmain[i]
 
     for list in listmain:
         if len(list) > k:
@@ -43,6 +49,14 @@ def pcaToSignal(X, nsamples, T):
             break
 
     print ("s.shape", s.shape)
+
+    for row in s:
+        plt.plot(row, label='s[%d]' %i)
+
+    plt.legend()
+    plt.xlabel("samples")
+    plt.ylabel("trajectory")
+    plt.show()
     return s
 
 def selectBestPCAComponent(freqComp_s):
@@ -54,6 +68,8 @@ def computeMaxFreqComponent(x, fs):
     PSD = sum(Pxx_den)  # np.sqrt(Pxx_den.max())
     i = np.argmax(Pxx_den)
     frac = Pxx_den[i] / PSD
+    if (math.isnan(frac)):
+        frac=0.0
     return (frac, f[i])
 
 

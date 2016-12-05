@@ -1,0 +1,11 @@
+{
+    "sample_videos":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/sample_videos/",
+    "saved_hrv":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/saved_hrv/",
+	"saved_hrv_positive":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/saved_hrv/positive/",
+	"saved_hrv_negative":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/saved_hrv/negative/",
+    "saved_signal":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/saved_signal/",
+	"saved_signal_positive":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/saved_signal/positive/",
+	"saved_signal_negative":      "C:/Users/aayushgarg90/PycharmProjects/Ballistocardiography-master/saved_signal/negative/",
+    "test_path":       "C:/Python2711/codes/Expedia Hotel Recommend/pythoncode/test2.csv"
+}
+

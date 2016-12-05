@@ -46,7 +46,7 @@ def butterworthHighPass(T, nsamples, fs, lowcut, data):
 def butterworthBandpass(T, nsamples, fs, lowcut, highcut, data):
     print "Butterworth BandPass Filter (0.75,5) Hz..."
     t = np.linspace(0, T, nsamples, endpoint=False)
-    # plt.plot(t, data.T[0], label='Noisy signal')
+    plt.plot(t, data.T[0], label='Noisy signal')
 
     idata_newt = np.zeros(data.T.shape)
     i = 0

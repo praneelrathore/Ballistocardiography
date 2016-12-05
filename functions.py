@@ -4,7 +4,87 @@ import numpy.fft as fft
 from matplotlib import pyplot as plt
 import scipy as sy
 import pdb
+import json
+import os
 
+def convert09(data):
+    old_min = min(data)
+    old_max = max(data)
+    new_min = 0
+    new_max = 9
+
+    arr = np.zeros(5)
+    i = 0
+    for old_value in data:
+        arr[i] = 9.0 - (( (old_value - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min)
+        i=i+1
+
+    return arr
+
+def convert19(data):
+    old_min = min(data)
+    old_max = max(data)
+    new_min = 1
+    new_max = 9
+
+    arr = np.zeros(len(data))
+    i = 0
+    for old_value in data:
+        arr[i] = 9 - (( (old_value - old_min) / (old_max - old_min) ) * (new_max - new_min) + new_min)
+        i=i+1
+
+    return arr
+
+
+def areaInterval(data):
+    unique, counts = np.unique(data, return_counts=True)
+    ar1 = 0
+    ar2 = 0
+    ar3 = 0
+    ar4 = 0
+    ar5 = 0
+    arr = np.zeros(5)
+
+    #print dict(zip(unique, counts))
+
+    for v, (i,cnt) in enumerate(zip(unique, counts)):
+        if (i >= 0.4 and i < 0.7):
+            ar1 += cnt
+        elif (i >= 0.7 and i < 1.0):
+            ar2 += cnt
+        elif (i >= 1.0 and i < 1.3):
+            ar3 += cnt
+        elif (i >= 1.3 and i < 1.6):
+            ar4 += cnt
+        elif (i >= 1.6 and i < 1.9):
+            ar5 += cnt
+
+    arr[0] = ar1
+    arr[1] = ar2
+    arr[2] = ar3
+    arr[3] = ar4
+    arr[4] = ar5
+
+    return arr
+
+
+
+def integrate(y_vals, h):
+    i=1
+    total=y_vals[0]+y_vals[-1]
+    for y in y_vals[1:-1]:
+        if i%2 == 0:
+            total+=2*y
+        else:
+            total+=4*y
+        i+=1
+    return total*(h/3.0)
+
+def get_paths():
+    paths = json.loads(open("SETTINGS.json").read())
+    for key in paths:
+        paths[key] = os.path.expandvars(paths[key])
+    return paths
 
 def compute(list1, list2):
     k=len(list2) - len(list1)
@@ -49,8 +129,9 @@ def trackFeatures(cap, old_frame, corners_t, xx, yy, color, old_gray, frCnt):
             break
 
         cnt = cnt + 1
-        if cnt == frCnt:
-            break
+        if frCnt != -1:
+            if cnt == frCnt:
+                break
         listx.append(cnt)
         frame_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
@@ -89,7 +170,7 @@ def trackFeatures(cap, old_frame, corners_t, xx, yy, color, old_gray, frCnt):
         p0 = good_new.reshape(-1, 1, 2)
 
     # pdb.set_trace()
-    return (listx, listmain)
+    return (listx, listmain, cnt-1)
 
 
 def markFeatures(old_frame, focused_face, corners, xx, yy):
@@ -99,6 +180,7 @@ def markFeatures(old_frame, focused_face, corners, xx, yy):
         cv2.circle(focused_face, (ix, iy), 3, 255, -1)
         cv2.circle(old_frame, (xx + ix, yy + iy), 3, 255, -1)
 
+    #plt.imshow(old_frame), plt.show()
 
 def getFocusedArea(face, old_frame):
     print "Selecting boundary for features..."
@@ -131,6 +213,8 @@ def getFocusedArea(face, old_frame):
         cv2.rectangle(old_frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
         focused_face = old_frame[y:y + 6 * h / 10, x + 5 * w / 12: x + (7 * w / 12)]
         cv2.rectangle(old_frame, (x + 5 * w / 12, y), (x + 7 * w / 12, y + 6 * h / 10), (255, 0, 0), 2)
+        #cv2.imshow('img', old_frame)
+
 
     return (focused_face, xx, yy)
 

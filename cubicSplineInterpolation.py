@@ -5,6 +5,10 @@ from scipy import interpolate
 def cubicSplineInterpolate(nsamples, data, listx, upSampleFactor):
     print "Cubic Spline Interpolation..."
     plt.plot(listx, data.T[0], 'r')
+    plt.xlabel('frame number')
+    plt.ylabel('feature y position')
+    plt.show()
+    #plt.plot(listx, data.T[0], 'r')
     np_array_new = np.zeros((len(data[0]), nsamples))
     i = 0
     [xvals, sampleSpace] = np.linspace(min(listx), len(listx), nsamples, retstep=True)
@@ -17,7 +21,7 @@ def cubicSplineInterpolate(nsamples, data, listx, upSampleFactor):
     idata = np_array_new.T
     plt.plot(xvals, idata.T[0], 'b')
 
-    plt.legend(['Linear', 'Cubic Spline'])
+    #plt.legend(['Linear', 'Cubic Spline'])
     plt.xlabel('frame number')
     plt.ylabel('feature y position')
     plt.show()

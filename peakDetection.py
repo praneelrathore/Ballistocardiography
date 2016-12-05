@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import math
 import peakutils
+import peak_detection_matlab as peak_mat
 
 def getPeaksInGraph(dataset, T, nsamples, fs):
     t = np.linspace(0, T, nsamples, endpoint=False)
@@ -60,6 +61,7 @@ def calculateBPM(peaklist, fs):
     RR_list = []
     RR_list2 = []
     cnt = 0
+    hrv = []
     while (cnt < (len(peaklist) - 1)):
         RR_interval = (peaklist[cnt + 1] - peaklist[cnt])  # Calculate distance between beats in # of samples
         RR_list2.append(RR_interval)
@@ -69,17 +71,32 @@ def calculateBPM(peaklist, fs):
     i=1
     j=2
     for x in RR_list2:
-        val = float(fs/x)
-        print("HRV for peaks %d and %d = %f, sample distance = %f" %(i,j,val,x))
-        i=i+1
-        j=j+1
+        if (x != 0):
+            val = float(fs/x)
+            print("HRV for peaks %d and %d = %f, sample distance = %f" %(i,j,val,x))
+            hrv.append(val)
+            i=i+1
+            j=j+1
 
     bpm = 60000 / np.mean(RR_list)  # 60000 ms (1 minute) / average R-R interval of signal
-    return bpm
 
-def getPeaksUsingPeakUtils(dataset,T,nsamples,fpulse,fs,thres):
+    RR_mean = np.mean(RR_list2)
+    N = len(RR_list2)
+    SDNN_tmp = 0
+
+    for x in RR_list2:
+        x1 = x-RR_mean
+        x2 = x1*x1
+        SDNN_tmp = SDNN_tmp + x2
+
+    SDNN_tmp = float(SDNN_tmp / (N+8))
+    SDNN = math.sqrt(SDNN_tmp)
+
+    return (bpm,hrv,SDNN)
+
+def getPeaksUsingPeakUtils(dataset,T,nsamples,fpulse,fs,thres,cnt):
     t = np.linspace(0, T, nsamples, endpoint=False)
-    winsize = round(fs/fpulse)
+    winsize = float(fs/fpulse)
     print('Detect peaks with minimum height and distance filters.')
     mx = max(dataset)
     mn = min(dataset)
@@ -89,6 +106,7 @@ def getPeaksUsingPeakUtils(dataset,T,nsamples,fpulse,fs,thres):
     thr = lval/rng
     print ('threshold value for peaks', thr) #0.61877954452134953
     indexes = peakutils.peak.indexes(np.array(dataset),thres=thr, min_dist= winsize)
+    #beat_pts, indexes = peak_mat.beat_location(len(dataset), int(winsize), dataset, fs)
 
     print('Peaks are: %s' % (indexes))
     mov_avg = pd.rolling_mean(dataset, window=int(winsize))  # Calculate moving average
@@ -107,15 +125,14 @@ def plotPeaks(dataset,T,nsamples,xbeat,ybeat):
     plt.scatter(xbeat, ybeat, color='red')  # Plot detected peaks
     plt.show()
 
-def plotFinalBPM(dataset,T,nsamples,samplingFreq,fpulse,thres):
+def plotFinalBPM(dataset,T,nsamples,samplingFreq,fpulse,thres,cnt):
     #(peaklist, ybeat, xbeat, mov_avg) = getPeaksInGraph(dataset, T, nsamples, samplingFreq)
-    #plotPeaks(dataset, T, nsamples, xbeat, ybeat)
-    (peaklist,xbeat,ybeat,mov_avg) = getPeaksUsingPeakUtils(dataset,T,nsamples, fpulse, samplingFreq,thres)
+    (peaklist,xbeat,ybeat,mov_avg) = getPeaksUsingPeakUtils(dataset,T,nsamples, fpulse, samplingFreq,thres,cnt)
     plotPeaks(dataset, T, nsamples, xbeat, ybeat)
-    bpm = calculateBPM(peaklist, samplingFreq)
+    (bpm,hrv,SDNN) = calculateBPM(peaklist, samplingFreq)
     plotPeaksWithBPM(dataset, T, nsamples, mov_avg, xbeat, ybeat, bpm)
 
-    return bpm
+    return (bpm,hrv,SDNN)
 
 ## testing functions ##
 def testplotFinalBPM(peaklist,samplingFreq):
@@ -123,3 +140,4 @@ def testplotFinalBPM(peaklist,samplingFreq):
     bpm = calculateBPM(peaklist, samplingFreq)
     #plotPeaksWithBPM(dataset, T, nsamples, mov_avg, xbeat, ybeat, bpm)
     return bpm
+

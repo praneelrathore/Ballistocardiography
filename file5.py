@@ -14,7 +14,7 @@ thres = 0.48  #for s01_trial05 testdata[4,38] BPM = 71.4
 
 x = cPickle.load(open('s01.dat', 'rb'))
 testdata = x['data']
-testarray = testdata[4,38]
+testarray = testdata[04,38]
 print ('testarray.shape',testarray.shape)
 
 data = np.array(testarray)
@@ -25,12 +25,14 @@ T = len(data)
 nsamples = len(data)
 
 #func.fft_plot2(data)
+cnt=0
 
 y = bwf.butterworthHighPass(T,nsamples,samplingFreq,lowcut,data)
 #fpulse = pca.getfpulse(np.array(y),samplingFreq)
 #func.fft_plot2(y)
+#np.savetxt('ppg_signal.out', y, delimiter=',')
 
-bpm = pd.plotFinalBPM(y,T,nsamples,samplingFreq,fpulse,thres)
+bpm,hrv,SDNN = pd.plotFinalBPM(y,T,nsamples,samplingFreq,fpulse,thres,cnt)
 print ("Final BPM = %f, fpulse = %f" %(bpm,fpulse)) #BPM = 49.6
 
 
