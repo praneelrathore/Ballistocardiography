@@ -4,7 +4,7 @@
 Project Title - Detection of hedonic response using Ballistocardiography
 Group members -
 1. Praneel Rathore - IIT2013034 - iit2013034@iiita.ac.in - +91 9026090651
-2. Aayush Garg - IIT2013061 - iit2013061@iiita.ac.in +91 9958835287
+2. Aayush Garg - IIT2013061 - iit2013061@iiita.ac.in
 3. Nipun Manocha - IIT2013124 - iit2013124@iiita.ac.in - +91 9999452588
 
 Pre-requisites to run the project -
